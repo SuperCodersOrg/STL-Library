@@ -30,9 +30,9 @@ template<typename T> class DynamicArray{
     public:
 
     DynamicArray();// Constructor
-    ~DynamicArray(); //Destructor
     DynamicArray(const DynamicArray& other); //Copy Constructor
-    DynamicArray& operator=(const DynamicArray& other); //Handling assignment operator
+    DynamicArray(DynamicArray&& other); // Move Constructor
+    ~DynamicArray(); //Destructor
     void push_back(T value); //Add value at last
     void insert(int index, T value); //Add value at given index
     void remove(int index);// Delete value by index
@@ -43,78 +43,114 @@ template<typename T> class DynamicArray{
     void clear(); // remove all elements
 };
 ```
-## LinkedList 
-
-Singly linked list  
+## LinkedList  
 
 
-```cpp
-template<typename T> class LinkedList{
+```cpp   
+template<typename T>class LinkedList{
+
+    private:
+    struct Node{
+        T data;
+        Node*next;
+        Node(T val);
+    }
     public:
+    Node*head=nullptr;
+    Node*tail=nullptr;
+    int size=0;
     LinkedList(); //Constructor
-    ~LinkedList(); // Destructor
     LinkedList(const LinkedList& other); // Copy Constructor
-    LinkedList& operator=(const LinkedList& other); // Handling assignment operator
+    LinkedList(LinkedList&& other); // Move Constructor 
+    ~LinkedList(); // Destructor
     void insertFront(T value); //Insert value at front
     void deleteFront(); // Delete first value
     void insert(int pos, T value); //Insert value at given position
-    bool contains(T value); //returns true if value exists otherwise returns false 
+    void append(T value); // Insert value at last
+    bool exists(T value); //returns true of value exists otherwise returns false 
     int size(); //return size of the linkedlist
     void print(); // print the linkedlist
-
 };
 ```
+
+The current implementation uses a **singly linked list** because it provides a simple structure and satisfies the requirements of the project. However, the design remains *flexible*. If future requirements demand more efficient *bidirectional traversal* or *frequent operations* at both ends of the list, the implementation may be extended to a **doubly linked** list. Such a change can be made without affecting the public interface significantly, allowing the data structure to evolve based on performance considerations and project needs.
+
+
+
 ## HashMap
 
 ```cpp
-template <typename T> class HashMap {
+template <typename K , typename V> class HashMap {
     
     public:
     HashMap(); // Constructor
-    ~HashMap(); // Destructor
     HashMap(const HashMap& other); // Copy Constructor
     HashMap& operator=(const HashMap& other); // Handling assignment operator
-    void insert(T key,T value); // Insert key-value pair
-    T get(T key); //return value by key
-    bool exists(T key); //returns true if key exists
-    void remove(T key); // delete key-value pair
-    int size(); // returns the size of hashtable
-    int capacity(); // returns the total capacity of hash table
-    float loadFactor(); // returns the value of load factor
-    void clear();
+    ~HashMap(); // Destructor
+    void insert(K key,V value); // Insert key-value pair
+    V get(K key); //return value by key
+    bool exists(const K& key) const; //returns true if key exists
+    void remove(K key); // delete key-value pair
+    int size() const; // returns the size of hashtable
+    int capacity() const; // returns the total capacity of hash table
+    float loadFactor() const; // returns the value of load factor
+    void clear(); // clear the entire hashmap
     
 };
 ```
+
+**Templates** are used in all data structures to make them generic and reusable. They allow a single implementation to work with different data types without duplicating code, while also providing compile-time type safety and efficient performance.
+
+This design also improves scalability, as *new methods and functionalities can be added* without creating separate versions for each data type, making the data structures more flexible and maintainable.
 
 # Section 2 - Internal Representation
 
 ## Rule of Three
 
-All three data structures allocate memory dynamically. Therefore, each structure follows the Rule of Three by implementing a destructor, copy constructor, and copy assignment operator to manage object lifetime safely
+All three data structures allocate memory dynamically. Therefore, each structure follows the Rule of Three by implementing a **destructor**, **copy constructor**, and **copy assignment operator**. These functions ensure proper resource management, prevent `memory leaks`, and provide correct deep copying of dynamically allocated data.
 
-## DynamicArray
+### DynamicArray
 
-DynamicArray stores elements in a contiguous block of memory allocated on the heap. Two integer fields are maintained to track the current size and total capacity.
 
-The destructor will release the dynamically allocated array using `delete[]`.
+DynamicArray stores elements in a contiguous block of memory allocated on the *heap*. Two integer fields are maintained to track the current size and total capacity.
 
-## LinkedList
+The destructor releases the dynamically allocated array using `delete[]`.
 
-LinkedList consists of individually allocated nodes connected by next pointers. Each node stores a value of type T and a pointer to the next node.
+Copy operations perform a **deep copy** by allocating a new array and copying all elements from the source object.
 
-The destructor will `traverse` the list and delete every node until the list becomes empty.
 
-## HashMap
+![DynamicArray](Dynamicarray.jpg)
+### LinkedList
 
-HashMap uses **separate chaining**. A bucket array stores pointers to linked lists, where each node in a chain stores an integer key and a value of type T .
 
-The destructor will `traverse` every bucket, delete all nodes in the chains, and finally release the bucket array.
+LinkedList consists of individually allocated nodes connected by *next pointers*. Each node stores a value of type `T` and a pointer to the next node.
 
-## Copy Operation
+The destructor `traverses` the list and deletes every node until the list becomes empty.
 
-All three data structures will use **deep copying**. During a copy operation, new memory will be allocated and the contents of the original object will be copied into the newly allocated memory.
+Copy operations perform a deep copy by allocating new nodes and duplicating the contents of the source list.
+
+
+![LinkedList](Linkedlist.jpg)
+
+### HashMap
+
+
+HashMap uses **separate chaining**. A bucket array stores pointers to *linked lists*, where each node in a chain stores a key and a value of type `T`.
+
+The destructor `traverses` every bucket, deletes all nodes in the chains, and finally releases the bucket array.
+
+Copy operations perform a deep copy by allocating a new bucket array and duplicating all key-value pairs.
+
+
+![Hashmap1](Hashmap1.jpg)
+![Hashmap2](Hashmap2.jpg)
+
+### Copy Operations
+
+All three data structures use **deep copying** for copy operations. During a copy operation, new memory is allocated and the contents of the source object are duplicated into the newly allocated memory.
 
 Shallow copying is avoided because shared memory may lead to `dangling pointers`, `double deletion`, `undefined behavior`, and `program crashes`.
+
 
 # Section 3 - Complexity Estimates
 
@@ -330,6 +366,7 @@ Doubly Linked List - More memory usage
 
 `Proposed design reason`    
 Using separate chaining for collision resolution - Easy insertion and deletion
+Rehashing after reaching load factor 75% (0.75).
 
 `Rejected design reason`  
 Rejected linear probing because primary clustering increases the number of probes and degrades performance.
