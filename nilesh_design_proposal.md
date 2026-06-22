@@ -69,6 +69,7 @@ template<typename T>class LinkedList{
     void append(T value); // Insert value at last
     bool exists(T value); //returns true of value exists otherwise returns false 
     int size(); //return size of the linkedlist
+    void reverse()// reverse the LinkedList
     void print(); // print the linkedlist
 };
 ```
