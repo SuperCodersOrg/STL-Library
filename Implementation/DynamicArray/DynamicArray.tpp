@@ -24,17 +24,8 @@ template<typename T> DynamicArray<T>::~DynamicArray(){
     
 }
 
-// Delete element by Index
-template<typename T> void DynamicArray<T>::del(int index){
 
-    if(index<0 || index >=len){
-        throw std::out_of_range("Index oit of range");
-    }
-    if constexpr(!std::is_trivially_destructible_v<T>){
-        arr[index].~T();
-    }
-    
-}
+
 
 
 // --------------------------------------------------------------------
@@ -79,14 +70,77 @@ template<typename T >DynamicArray<T> :: DynamicArray(int cap,T val){
 
 // Copy Constrctor
 template<typename T> DynamicArray<T>::DynamicArray(const DynamicArray &others){
+    
     cap=others.cap;
     len=others.len;
+    arr=(T*)malloc(cap*sizeof(T));
+    if(arr==nullptr){
+        throw std::bad_alloc();
+    }
+    int i=0;
+    try{
+        for(;i<len;i++){
+            new(&arr[i])T(others.arr[i]);
+        }
+    }
+    catch(...){
+        destroyAndFree(arr,i);
+        throw;
+    }
+    
+}
 
-    for(int i=0;i<len;i++){
-        //arr.push_back(others.arr[i]);
-        // Continue Tomorrow
+// copy assignment constructor
+template<typename T>
+DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray& others){
+
+    if(this == &others){
+        return *this;
     }
 
+    T* newArr = (T*)malloc(others.cap * sizeof(T));
+
+    if(newArr == nullptr){
+        throw std::bad_alloc();
+    }
+
+    int i = 0;
+
+    try{
+        for(; i < others.len; i++){
+            new(&newArr[i]) T(others.arr[i]);
+        }
+    }
+    catch(...){
+        destroyAndFree(newArr, i);
+        throw;
+    }
+
+    destroyAndFree(arr, len);
+
+    arr = newArr;
+    len = others.len;
+    cap = others.cap;
+
+    return *this;
+}
+
+
+
+// Operator[] overloading 
+template<typename T> T& DynamicArray<T>::operator[](int index){
+    if(index<0 || index>=len){
+        throw std:: out_of_range("Index out of range");
+    }
+    return arr[index];
+}
+
+// Operator[] const overloading
+template<typename T> const T& DynamicArray<T>::operator[](int index) const{
+    if(index<0 || index>=len){
+        throw std:: out_of_range("Index out of range");
+    }
+    return arr[index];
 }
 
 // Resizing the Array
@@ -130,32 +184,19 @@ template<typename T>void DynamicArray<T>::pop_back(){
     if(len==0){
         throw std::underflow_error("Array is empty");
     }
-    del(len-1);
+    if constexpr(!std::is_trivially_destructible_v<T>){
+        arr[len-1].~T();
+    }
     len--;
     
 }
 
 
 
-// Operator[] overloading 
-template<typename T> T& DynamicArray<T>::operator[](int index){
-    if(index<0 || index>=len){
-        throw std:: out_of_range("Index out of range");
-    }
-    return arr[index];
-}
-
-// Operator[] const overloading
-template<typename T> const T& DynamicArray<T>::operator[](int index) const{
-    if(index<0 || index>=len){
-        throw std:: out_of_range("Index out of range");
-    }
-    return arr[index];
-}
 
 
 // insert
-template<typename T> void DynamicArray<T>:: insert(int index,T val){
+template<typename T> void DynamicArray<T>:: insert(int index,const T& val){
     if(index<0 || index> len){
         throw std::out_of_range("Index out of range");
     }
@@ -168,7 +209,8 @@ template<typename T> void DynamicArray<T>:: insert(int index,T val){
         resize();
     }
 
-    for(int i=len;i>index;i--){
+    new (&arr[len])T(arr[len-1]);
+    for(int i=len-1;i>index;i--){
         arr[i]=arr[i-1];
     }
     arr[index]=val;
@@ -180,7 +222,17 @@ template<typename T> void DynamicArray<T> :: remove(int index){
     if(index<0 || index>=len){
         throw std::out_of_range("Index out of range");
     }
-
+    if(index==len-1){
+        pop_back();
+        return;
+    }
+    for(int i=index;i<len-1;i++){
+        arr[i]=arr[i+1];
+    }
+    if constexpr(!std::is_trivially_destructible_v<T>){
+        arr[len-1].~T();
+    }
+    len--;
 }
 
 // size
@@ -190,4 +242,18 @@ template<typename T> int DynamicArray<T>:: size()const{
 // capacity
 template<typename T> int DynamicArray<T>:: capacity()const{
     return cap;
+}
+
+// clear
+template<typename T>void DynamicArray<T>::clear(){
+    destroyAndFree(arr,len);
+    cap=4;
+    len=0;
+
+    arr = (T*)malloc(cap * sizeof(T));
+
+    if(arr == nullptr){
+        throw std::bad_alloc();
+    }
+
 }
