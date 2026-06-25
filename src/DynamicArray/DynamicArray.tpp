@@ -143,6 +143,21 @@ template<typename T> const T& DynamicArray<T>::operator[](int index) const{
     return arr[index];
 }
 
+// operator == overloading
+template<typename T>
+bool DynamicArray<T>::operator==(const DynamicArray& other) const {
+
+    if(len != other.len)
+        return false;
+
+    for(int i = 0; i < len; i++) {
+        if(arr[i] != other.arr[i])
+            return false;
+    }
+
+    return true;
+}
+
 // Resizing the Array
 template<typename T> void DynamicArray<T>:: resize(){
     int newsize=cap*2;

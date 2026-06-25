@@ -1,20 +1,23 @@
-#include "include/DynamicArray.h"
+#include "include/HashMap.h"
+#include "include/LinkedList.h"
 #include <bits/stdc++.h>
 using namespace std;
 
 class student {
 
+    public:
+    bool operator==(const student& other)const{
+        return this==&other;
+    }
+
 };
 
 int main(){
-    DynamicArray<int>d;
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
-    d.push_back(4);
+    
+    DynamicArray<int>s;
+    HashMap<DynamicArray<int>,string>map;
 
-    for(int i=0;i<d.size();i++){
-        cout<<d[i]<<endl;
-    }
+    map.insert(s,"Hello");
+    cout<<map.get(s);
 
 }

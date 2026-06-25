@@ -5,7 +5,7 @@ template<typename T>class LinkedList{
     template<typename>
     friend struct MyHash;
 
-    template<typename, typename>
+    template<typename,typename>
     friend class HashMap;
     private:
     struct Node{
@@ -18,7 +18,6 @@ template<typename T>class LinkedList{
     
     public:
     
-
     // 10 methods
     Node*head=nullptr;
     Node*tail=nullptr;

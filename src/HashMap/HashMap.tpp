@@ -10,9 +10,6 @@ HashMap<K,V>::Pair::Pair(K k, V v){
     value=v;
 }
     
-
-
-
 //
 // HashMap Constructor
 //
@@ -49,6 +46,7 @@ void HashMap<K,V>::insert(const K& key, const V& value)
 
     while(curr)
     {
+        // operator == should be defined for key type
         if(curr->data.key == key)
         {
             curr->data.value = value;

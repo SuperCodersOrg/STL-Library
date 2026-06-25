@@ -15,6 +15,7 @@ template<typename T> class DynamicArray{
     DynamicArray(const DynamicArray& other); //Copy Constructor
     DynamicArray& operator=(const DynamicArray& other); //Copy Assignment Constructor
     T& operator [](int index); // operator [] with =
+    bool operator==(const DynamicArray &others)const;
     const T& operator [](int index) const; // const operator []
     ~DynamicArray(); //Destructor
     void push_back(const T& value); //Add value at last

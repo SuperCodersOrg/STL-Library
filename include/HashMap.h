@@ -4,12 +4,15 @@
 #include "LinkedList.h"
 #include "MyHash.h"
 
+
 #include <stdexcept>
 
 template<typename K, typename V>
 class HashMap {
 
 private:
+    
+    
 
     struct Pair {
         K key;
